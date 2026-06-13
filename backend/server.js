@@ -10,6 +10,7 @@ const cron =
 const app =
   express();
 
+/* middleware */
 app.use(
   cors()
 );
@@ -18,8 +19,9 @@ app.use(
   express.json()
 );
 
-/* 40 seats */
+/* in-memory seats */
 let seats =
+  global.seats ||
   Array.from(
     { length: 40 },
     (_, i) => ({
@@ -42,14 +44,30 @@ let seats =
     })
   );
 
-/* GET ALL */
+global.seats =
+  seats;
+
+/* HEALTH */
+app.get(
+  "/",
+  (
+    req,
+    res
+  ) => {
+    res.send(
+      "DeskGuard API Running"
+    );
+  }
+);
+
+/* GET ALL SEATS */
 app.get(
   "/api/seats",
   (
     req,
     res
   ) => {
-    res.json(
+    res.status(200).json(
       seats
     );
   }
@@ -92,7 +110,6 @@ app.post(
     seat.checked_in_at =
       new Date();
 
-    /* next still here prompt */
     seat.still_here_due =
       new Date(
         Date.now() +
@@ -108,7 +125,7 @@ app.post(
     seat.abandoned =
       false;
 
-    res.json({
+    return res.json({
       message:
         "Checked in",
       seat,
@@ -150,7 +167,6 @@ app.post(
     seat.status =
       "away";
 
-    /* 20 mins */
     seat.away_until =
       new Date(
         Date.now() +
@@ -159,7 +175,7 @@ app.post(
             1000
       );
 
-    res.json({
+    return res.json({
       message:
         "Away mode started",
       seat,
@@ -201,7 +217,6 @@ app.post(
     seat.status =
       "occupied";
 
-    /* reset 2hr timer */
     seat.still_here_due =
       new Date(
         Date.now() +
@@ -211,7 +226,7 @@ app.post(
             1000
       );
 
-    res.json({
+    return res.json({
       message:
         "Confirmed",
       seat,
@@ -265,7 +280,7 @@ app.post(
     seat.abandoned =
       false;
 
-    res.json({
+    return res.json({
       message:
         "Seat reset",
       seat,
@@ -273,84 +288,92 @@ app.post(
   }
 );
 
-/* CRON SWEEPER */
-cron.schedule(
-  "* * * * *",
-  () => {
-    console.log(
-      "Running seat sweep..."
-    );
+/* CRON */
+if (
+  !global.cronStarted
+) {
+  cron.schedule(
+    "* * * * *",
+    () => {
+      const now =
+        new Date();
 
-    const now =
-      new Date();
+      seats.forEach(
+        (
+          seat
+        ) => {
+          /* away expired */
+          if (
+            seat.away_until &&
+            now >
+              new Date(
+                seat.away_until
+              )
+          ) {
+            seat.status =
+              "free";
 
-    seats.forEach(
-      (seat) => {
-        /* away timer expired */
-        if (
-          seat.away_until &&
-          now >
-            new Date(
-              seat.away_until
-            )
-        ) {
-          seat.status =
-            "free";
+            seat.away_until =
+              null;
 
-          seat.away_until =
-            null;
+            console.log(
+              `${seat.seat_number} freed`
+            );
+          }
 
-          console.log(
-            `${seat.seat_number} freed from away timeout`
-          );
+          /* abandoned */
+          if (
+            seat.still_here_due &&
+            now >
+              new Date(
+                seat.still_here_due
+              )
+          ) {
+            seat.status =
+              "free";
+
+            seat.abandoned =
+              true;
+
+            seat.checked_in_at =
+              null;
+
+            seat.still_here_due =
+              null;
+
+            console.log(
+              `${seat.seat_number} abandoned`
+            );
+          }
         }
+      );
+    }
+  );
 
-        /* still here missed */
-        if (
-          seat.still_here_due &&
-          now >
-            new Date(
-              seat.still_here_due
-            )
-        ) {
-          seat.status =
-            "free";
+  global.cronStarted =
+    true;
+}
 
-          seat.abandoned =
-            true;
+/* local dev */
+if (
+  process.env
+    .NODE_ENV !==
+  "production"
+) {
+  const PORT =
+    process.env.PORT ||
+    5000;
 
-          seat.checked_in_at =
-            null;
+  app.listen(
+    PORT,
+    () => {
+      console.log(
+        `Server running on port ${PORT}`
+      );
+    }
+  );
+}
 
-          seat.still_here_due =
-            null;
-
-          console.log(
-            `${seat.seat_number} abandoned`
-          );
-        }
-      }
-    );
-  }
-);
-
-app.get(
-  "/",
-  (
-    req,
-    res
-  ) => {
-    res.send(
-      "DeskGuard API Running"
-    );
-  }
-);
-
-app.listen(
-  5000,
-  () => {
-    console.log(
-      "Server running on port 5000"
-    );
-  }
-);
+/* vercel export */
+module.exports =
+  app;
