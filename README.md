@@ -2,77 +2,140 @@
 
 ## Overview
 
-DeskGuard is a smart **library seat management and anti-hoarding web application** designed to solve the problem of unfair desk occupancy in libraries. Students often reserve seats by leaving personal belongings and remaining absent for long periods, making it difficult for others to find available study spaces.
+DeskGuard is a **smart library seat booking and anti-hoarding web application** designed to improve seat utilization and fairness in libraries. Students often reserve study desks by leaving bags or belongings and remaining absent for long periods, making it difficult for others to find available study spaces.
 
-DeskGuard provides a **real-time, transparent, and fair seat allocation system** through live seat tracking, QR-based check-ins, away mode, and occupancy monitoring.
+DeskGuard solves this issue through **real-time seat tracking, QR-based desk check-ins, live occupancy monitoring, and temporary away mode support**. The system helps students easily find available desks while assisting librarians in managing occupancy efficiently.
 
 ---
 
 ## Problem Statement
 
-Libraries frequently face inefficient seat utilization due to **seat hoarding**, lack of **real-time occupancy tracking**, and unfair desk allocation.
+Libraries frequently face problems such as:
 
-Students often occupy desks by leaving bags or belongings and staying away for long durations, while other students struggle to find available study spaces. Additionally, librarians face challenges in effectively monitoring desk usage and abandoned seats.
+* **Seat hoarding** by students leaving personal belongings for long periods
+* **No real-time occupancy tracking** to identify available desks
+* **Unfair desk allocation**, preventing genuine students from studying
+* **Inefficient seat management** for librarians
 
-DeskGuard addresses these issues through a **smart real-time library seat management system**.
+DeskGuard addresses these challenges by introducing a **smart, transparent, and fair seat management system**.
 
 ---
 
-## Key Features
+## Features
 
-### 1. Real-Time Seat Availability
+### 📍 Real-Time Seat Tracking
 
-Students can instantly view seat availability through a **live dashboard**, showing desk status in real time.
+Students can instantly check which seats are **available, occupied, or temporarily away**.
 
-### 2. Color-Coded Seat Map
+### 🔍 Seat Search Functionality
 
-Desk statuses are visually represented using colors:
+Quickly search desks using **seat IDs or desk numbers**.
+
+### 🎨 Color-Coded Seat Map
+
+Seat availability is represented visually:
 
 * 🟢 **Green** → Available
 * 🔴 **Red** → Occupied
 * 🟡 **Yellow** → Away
 
-This improves visibility and quick decision-making.
+This makes navigation fast and intuitive.
 
-### 3. QR-Based Seat Check-In
+### 📱 QR Code Check-In
 
-Each desk contains a QR code that students scan to check in and occupy a seat securely.
+Students can scan desk-specific QR codes to **check in securely and occupy seats**.
 
-### 4. Seat Search Functionality
+### ⏳ Away Mode
 
-Students can quickly search for desks using **seat/desk IDs**.
+Users can temporarily leave their desk while retaining their seat for a limited period.
 
-### 5. Away Mode
+### 📊 Live Dashboard
 
-Users can temporarily leave their desk by activating **Away Mode**, preventing immediate seat loss while discouraging long-term hoarding.
+A real-time dashboard displays:
 
-### 6. Live Dashboard Monitoring
+* Total seats
+* Occupied seats
+* Available seats
+* Away seats
 
-The system updates desk occupancy instantly, allowing students and librarians to monitor seat usage.
+### 👥 Group Study Zones
 
-### 7. Group Study Zone Support
+Dedicated areas for collaborative learning and group discussions.
 
-Dedicated seating areas for collaborative learning and group discussions.
+### 🧾 Student Check-In Details
 
-### 8. Student Check-In Details
+Students enter **name and roll number** while checking in for better seat tracking.
 
-Students enter **name and roll number** during check-in for better tracking and accountability.
+### 📲 Responsive Interface
 
-### 9. Responsive Interface
-
-The application works smoothly across desktop and mobile devices.
+The platform is optimized for **desktop and mobile devices**.
 
 ---
 
-## How It Works
+## System Workflow
 
-1. Student opens the DeskGuard portal.
-2. The live dashboard displays available, occupied, and away seats.
-3. Student searches or selects a seat.
-4. Student scans the desk QR code to check in.
+1. Open the DeskGuard portal.
+2. View the live library seat map.
+3. Search or select an available seat.
+4. Scan the QR code to check in.
 5. Seat status changes to **Occupied**.
-6. Student may activate **Away Mode** if leaving temporarily.
-7. Dashboard updates in real time for all users.
+6. Use **Away Mode** if leaving temporarily.
+7. Dashboard updates in real time.
+
+---
+
+## Project Structure
+
+```plaintext id="p48m2v"
+DESKGUARD/
+│── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── db/
+│   ├── jobs/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   ├── .env
+│   ├── server.js
+│   ├── package.json
+│   └── README.md
+│
+│── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── LibraryMap.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── QRModal.jsx
+│   │   │   ├── Seat.jsx
+│   │   │   └── SeatModal.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── Home.jsx
+│   │   │   ├── ScanPage.jsx
+│   │   │   └── SeatPage.jsx
+│   │   │
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   │
+│   │   ├── styles/
+│   │   │   ├── App.css
+│   │   │   └── index.css
+│   │   │
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   │
+│   ├── index.html
+│   ├── package.json
+│   └── README.md
+│
+│── docs/
+│── README.md
+```
 
 ---
 
@@ -80,70 +143,51 @@ The application works smoothly across desktop and mobile devices.
 
 ### Frontend
 
-* **React.js** – Dynamic user interface development
-* **Tailwind CSS** – Responsive and modern styling
-* **Framer Motion** – Smooth animations and transitions
+* **React.js** – Dynamic and reusable UI components
+* **Tailwind CSS** – Responsive styling and design
+* **Framer Motion** – Smooth UI animations
 
 ### Backend
 
-* **Node.js** – Server-side runtime environment
-* **Express.js** – API and backend route handling
+* **Node.js** – Server-side runtime
+* **Express.js** – API and route handling
 
 ### Database
 
-* **PostgreSQL / Firebase** – User and seat occupancy data storage
+* **PostgreSQL / Firebase** – Seat occupancy and user data storage
 
 ### Tools & Deployment
 
-* **QR Code Integration** – Secure desk check-in system
+* **QR Code Integration** – Seat check-in mechanism
 * **GitHub** – Version control and collaboration
 * **Vercel** – Frontend deployment
 
 ---
 
-## Folder Structure
-
-```plaintext
-DeskGuard/
-│── public/
-│── src/
-│   ├── components/
-│   ├── pages/
-│   ├── assets/
-│   ├── App.jsx
-│   └── main.jsx
-│── package.json
-│── README.md
-```
-
----
-
 ## Future Scope
 
-### Automatic Abandoned Seat Detection
+### 🤖 Automatic Abandoned Seat Detection
 
-The system can automatically detect inactive desks and free them for other students.
+Automatically detect inactive desks and release them for other students.
 
-### Seat Expiry Notifications
+### 🔔 Seat Expiry Notifications
 
-Students can receive alerts before their seat reservation or away timer expires.
+Notify students before their away timer or reservation expires.
 
-### Improved QR Compatibility
+### 📷 Better QR Compatibility
 
-Enhancing QR scanning for better support across different mobile devices and cameras.
+Improve QR scanning performance across different mobile devices and cameras.
 
-### Advanced Analytics Dashboard
+### 📈 Advanced Admin Dashboard
 
-Librarians can monitor occupancy trends and peak library usage hours.
+Provide detailed occupancy analytics and usage trends for librarians.
 
-### Mobile Application
+### 📱 Mobile Application
 
-A dedicated mobile app for easier access and faster seat tracking.
+Develop a dedicated mobile app for faster and easier access.
 
 ---
 
 ## Conclusion
 
-DeskGuard provides a **smart, fair, and user-friendly solution for library seat management** by improving seat accessibility, reducing seat hoarding, and enabling real-time occupancy tracking.
-
----
+DeskGuard provides a **smart, fair, and user-friendly solution for library seat management** by reducing seat hoarding, improving seat accessibility, and enabling real-time occupancy tracking.
