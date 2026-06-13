@@ -8,10 +8,10 @@ export default function QRModal({
   if (!seat) return null;
 
   const BASE_URL =
-    "https://desk-guard-three.vercel.app";
+  "https://desk-guard-three.vercel.app";
 
-  const qrValue =
-    `${BASE_URL}/seat/${seat.id}`;
+const qrValue =
+  `${BASE_URL}/scan?seat=${seat.id}`;
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
