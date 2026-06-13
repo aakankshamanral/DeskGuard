@@ -11,7 +11,7 @@ export default function LibraryMap({
       animate={{ opacity: 1 }}
       className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 backdrop-blur-xl shadow-2xl p-8"
     >
-      {/* soft background */}
+      {/* background glow */}
       <div className="absolute top-0 left-0 h-72 w-72 bg-cyan-500/5 blur-[140px]" />
 
       <div className="relative z-10 flex justify-between items-center mb-8 flex-wrap gap-4">
@@ -68,28 +68,56 @@ export default function LibraryMap({
           fill="#CBD5E1"
           fontWeight="600"
           fontSize="18"
+          pointerEvents="none"
         >
           Silent Study Zone
         </text>
 
-        {/* normal seats */}
-        {seats.map((seat, index) => {
-          const col = index % 8;
-          const row = Math.floor(index / 8);
+        {/* seats */}
+        {seats.map(
+          (seat, index) => {
+            const col =
+              index % 8;
 
-          const x = 140 + col * 135;
-          const y = 110 + row * 105;
+            const row =
+              Math.floor(
+                index / 8
+              );
 
-          return (
-            <Seat
-              key={seat.id}
-              seat={seat}
-              x={x}
-              y={y}
-              onClick={openSeat}
-            />
-          );
-        })}
+            const x =
+              140 +
+              col * 135;
+
+            const y =
+              110 +
+              row * 105;
+
+            return (
+              <g
+                key={
+                  seat.id
+                }
+                onClick={() =>
+                  openSeat(
+                    seat
+                  )
+                }
+                style={{
+                  cursor:
+                    "pointer",
+                  pointerEvents:
+                    "all",
+                }}
+              >
+                <Seat
+                  seat={seat}
+                  x={x}
+                  y={y}
+                />
+              </g>
+            );
+          }
+        )}
 
         {/* walkway */}
         <rect
@@ -100,9 +128,10 @@ export default function LibraryMap({
           rx="20"
           fill="#1E293B"
           opacity="0.4"
+          pointerEvents="none"
         />
 
-        {/* group rooms */}
+        {/* study rooms */}
         <StudyRoom
           x={70}
           y={720}
@@ -130,26 +159,41 @@ function StudyRoom({
   y,
   title,
 }) {
-  const centerX = x + 140;
-  const centerY = y + 120;
+  const centerX =
+    x + 140;
+
+  const centerY =
+    y + 120;
+
   const radius = 58;
 
-  const seatPositions = Array.from(
-    { length: 5 },
-    (_, i) => {
-      const angle =
-        ((Math.PI * 2) / 5) * i - Math.PI / 2;
+  const seatPositions =
+    Array.from(
+      { length: 5 },
+      (_, i) => {
+        const angle =
+          ((Math.PI *
+            2) /
+            5) *
+            i -
+          Math.PI / 2;
 
-      return {
-        x:
-          centerX +
-          radius * Math.cos(angle),
-        y:
-          centerY +
-          radius * Math.sin(angle),
-      };
-    }
-  );
+        return {
+          x:
+            centerX +
+            radius *
+              Math.cos(
+                angle
+              ),
+          y:
+            centerY +
+            radius *
+              Math.sin(
+                angle
+              ),
+        };
+      }
+    );
 
   return (
     <g>
@@ -165,7 +209,7 @@ function StudyRoom({
         strokeWidth="2"
       />
 
-      {/* subtle glass layer */}
+      {/* glass */}
       <rect
         x={x + 8}
         y={y + 8}
@@ -184,11 +228,12 @@ function StudyRoom({
         fill="#E2E8F0"
         fontWeight="600"
         fontSize="18"
+        pointerEvents="none"
       >
         {title}
       </text>
 
-      {/* center table */}
+      {/* table */}
       <circle
         cx={centerX}
         cy={centerY}
@@ -198,16 +243,22 @@ function StudyRoom({
         strokeWidth="2"
       />
 
-      {/* seats around table */}
-      {seatPositions.map((seat, index) => (
-        <circle
-          key={index}
-          cx={seat.x}
-          cy={seat.y}
-          r="16"
-          fill="#22C55E"
-        />
-      ))}
+      {/* seats */}
+      {seatPositions.map(
+        (
+          seat,
+          index
+        ) => (
+          <circle
+            key={index}
+            cx={seat.x}
+            cy={seat.y}
+            r="16"
+            fill="#22C55E"
+            pointerEvents="none"
+          />
+        )
+      )}
 
       {/* capacity */}
       <text
@@ -216,8 +267,10 @@ function StudyRoom({
         textAnchor="middle"
         fill="#64748B"
         fontSize="13"
+        pointerEvents="none"
       >
-        Capacity • 5 Students
+        Capacity • 5
+        Students
       </text>
     </g>
   );
