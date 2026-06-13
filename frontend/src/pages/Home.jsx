@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -15,104 +14,41 @@ import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
 import LibraryMap from "../components/LibraryMap";
-import QRModal from "../components/QRModal";
+import SeatModal from "../components/SeatModal";
 
-import API from "../api";
 import seatsData from "../data/seats";
 
 export default function Home() {
   const [seats, setSeats] =
-    useState(seatsData);
+  useState(
+    seatsData.map(
+      (seat) => ({
+        ...seat,
+        status: "free",
+        studentName: "",
+        rollNo: "",
+        checkedInAt: null,
+        stillHereDue: null,
+        awayUntil: null,
+      })
+    )
+  );
 
-  const [qrSeat, setQrSeat] =
+  const [
+    selectedSeat,
+    setSelectedSeat,
+  ] = useState(null);
+
+  const [
+    activities,
+    setActivities,
+  ] = useState([]);
+
+  const [searchSeat, setSearchSeat] =
+    useState("");
+
+  const [searchResult, setSearchResult] =
     useState(null);
-
-  /* LIVE FETCH */
-  useEffect(() => {
-    fetchSeats();
-
-    const interval =
-      setInterval(
-        fetchSeats,
-        2000
-      );
-
-    return () =>
-      clearInterval(
-        interval
-      );
-  }, []);
-
-  const fetchSeats =
-    async () => {
-      try {
-        const res =
-          await API.get(
-            "/seats"
-          );
-
-        const updatedSeats =
-          seatsData.map(
-            (seat) => {
-              const backendSeat =
-                res.data.find(
-                  (s) =>
-                    s.seat_number ===
-                    seat.id
-                );
-
-              return {
-                ...seat,
-                status:
-                  backendSeat?.status ||
-                  "free",
-              };
-            }
-          );
-
-        setSeats(
-          updatedSeats
-        );
-      } catch (
-        error
-      ) {
-        console.error(
-          "FETCH ERROR:",
-          error
-        );
-      }
-    };
-
-  const activities = [
-    {
-      id: 1,
-      text:
-        "D12 checked in",
-      color:
-        "bg-green-500",
-    },
-    {
-      id: 2,
-      text:
-        "D8 marked Away",
-      color:
-        "bg-yellow-400",
-    },
-    {
-      id: 3,
-      text:
-        "D31 auto-freed",
-      color:
-        "bg-red-500",
-    },
-    {
-      id: 4,
-      text:
-        "Group Study B occupied",
-      color:
-        "bg-cyan-500",
-    },
-  ];
 
   const occupied =
     useMemo(
@@ -170,8 +106,7 @@ export default function Home() {
           </h2>
 
           <p className="text-slate-500 text-sm mt-1">
-            Track desk
-            occupancy,
+            Track desk occupancy,
             away mode &
             study spaces
             in real time.
@@ -184,40 +119,30 @@ export default function Home() {
           <StatCard
             title="Seats"
             value="40"
-            icon={
-              <Armchair />
-            }
+            icon={<Armchair />}
           />
 
           <StatCard
             title="Occupied"
-            value={
-              occupied
-            }
-            icon={
-              <Users />
-            }
+            value={occupied}
+            icon={<Users />}
           />
 
           <StatCard
             title="Away"
             value={away}
-            icon={
-              <Clock3 />
-            }
+            icon={<Clock3 />}
           />
 
           <StatCard
             title="Available"
             value={free}
-            icon={
-              <Armchair />
-            }
+            icon={<Armchair />}
           />
         </div>
 
         {/* search */}
-        <div className="mb-8">
+        <div className="mb-5">
           <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[28px] px-5 py-4 flex items-center gap-3">
 
             <Search className="text-slate-400" />
@@ -225,10 +150,86 @@ export default function Home() {
             <input
               type="text"
               placeholder="Search seat (D12)"
+              value={searchSeat}
+              onChange={(e) => {
+                const value =
+                  e.target.value.toUpperCase();
+
+                setSearchSeat(
+                  value
+                );
+
+                const foundSeat =
+                  seats.find(
+                    (seat) =>
+                      seat.id ===
+                      value
+                  );
+
+                setSearchResult(
+                  foundSeat ||
+                    null
+                );
+              }}
               className="bg-transparent outline-none text-white w-full"
             />
           </div>
         </div>
+
+        {/* search result */}
+        {searchResult && (
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 10,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            className="mb-8 bg-white/10 backdrop-blur-xl border border-white/10 rounded-[28px] p-5"
+          >
+            <div className="flex justify-between items-center">
+
+              <div>
+                <h3 className="text-white text-xl font-bold">
+                  {
+                    searchResult.id
+                  }
+                </h3>
+
+                <p className="text-slate-400 capitalize">
+                  Status:
+                  {" "}
+                  {
+                    searchResult.status
+                  }
+                </p>
+
+                {searchResult.checkedInAt && (
+                  <p className="text-slate-500 text-sm mt-1">
+                    Checked In:
+                    {" "}
+                    {new Date(
+                      searchResult.checkedInAt
+                    ).toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={() =>
+                  setSelectedSeat(
+                    searchResult
+                  )
+                }
+                className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl"
+              >
+                View Seat
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* layout */}
         <div className="grid grid-cols-[1fr_240px] gap-5 items-start">
@@ -237,10 +238,8 @@ export default function Home() {
           <div className="min-w-0">
             <LibraryMap
               seats={seats}
-              openSeat={(
-                seat
-              ) =>
-                setQrSeat(
+              openSeat={(seat) =>
+                setSelectedSeat(
                   seat
                 )
               }
@@ -250,7 +249,7 @@ export default function Home() {
           {/* sidebar */}
           <div className="space-y-5 sticky top-8">
 
-            {/* activity */}
+            {/* live activity */}
             <motion.div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-4">
 
               <h2 className="text-white font-bold text-sm mb-4">
@@ -258,29 +257,39 @@ export default function Home() {
               </h2>
 
               <div className="space-y-3">
-                {activities.map(
-                  (
-                    activity
-                  ) => (
-                    <div
-                      key={
-                        activity.id
-                      }
-                      className="bg-white/5 rounded-xl p-3 border border-white/5"
-                    >
-                      <div className="flex gap-2 items-start">
 
-                        <div
-                          className={`w-2 h-2 rounded-full mt-1.5 ${activity.color}`}
-                        />
+                {activities.length ===
+                0 ? (
+                  <div className="bg-white/5 rounded-xl p-4 border border-white/5 text-center">
+                    <p className="text-slate-500 text-sm">
+                      No activity yet
+                    </p>
+                  </div>
+                ) : (
+                  activities.map(
+                    (
+                      activity
+                    ) => (
+                      <div
+                        key={
+                          activity.id
+                        }
+                        className="bg-white/5 rounded-xl p-3 border border-white/5"
+                      >
+                        <div className="flex gap-2 items-start">
 
-                        <p className="text-xs text-slate-200">
-                          {
-                            activity.text
-                          }
-                        </p>
+                          <div
+                            className={`w-2 h-2 rounded-full mt-1.5 ${activity.color}`}
+                          />
+
+                          <p className="text-xs text-slate-200">
+                            {
+                              activity.text
+                            }
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    )
                   )
                 )}
               </div>
@@ -294,13 +303,9 @@ export default function Home() {
               </h2>
 
               <div className="space-y-3 text-xs text-slate-300">
-
                 <Rule text="Maintain silence in study zones." />
-
                 <Rule text="Food & drinks are not allowed near desks." />
-
                 <Rule text="Keep your desk clean after use." />
-
                 <Rule text="Use group rooms for collaborative work only." />
               </div>
             </motion.div>
@@ -308,13 +313,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* QR modal */}
-      <QRModal
-        seat={qrSeat}
-        close={() =>
-          setQrSeat(
+      <SeatModal
+        selectedSeat={
+          selectedSeat
+        }
+        closeModal={() =>
+          setSelectedSeat(
             null
           )
+        }
+        seats={seats}
+        setSeats={
+          setSeats
+        }
+        setActivities={
+          setActivities
         }
       />
     </div>
@@ -328,9 +341,7 @@ function StatCard({
 }) {
   return (
     <motion.div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-6 text-white">
-
       <div className="flex justify-between items-center">
-
         <div>
           <p className="text-slate-400 text-sm">
             {title}
