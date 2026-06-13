@@ -1,7 +1,6 @@
-import Home from "./pages/Home";
+import ScanPage from "./pages/ScanPage";
 
-function App() {
-  return <Home />;
-}
-
-export default App;
+<Route
+  path="/scan"
+  element={<ScanPage />}
+/>
