@@ -12,33 +12,38 @@ export default function Seat({
   y,
   onClick,
 }) {
-  const color =
-    seatColors[seat.status];
+  const seatColor =
+    seatColors[
+      seat?.status
+    ] || "#22C55E";
 
   return (
     <motion.g
-      onClick={() => onClick(seat)}
+      onClick={() =>
+        onClick(seat)
+      }
       className="cursor-pointer"
       whileHover={{
-        y: -3,
+        y: -4,
+        scale: 1.02,
       }}
       transition={{
         duration: 0.18,
       }}
     >
-      {/* Seat body */}
+      {/* seat body */}
       <rect
         x={x}
         y={y}
         rx="18"
         width="90"
         height="55"
-        fill={color}
+        fill={seatColor}
         style={{
           transition:
-            "filter 0.2s ease",
+            "all 0.3s ease",
           filter:
-            "drop-shadow(0px 3px 6px rgba(0,0,0,0.18))",
+            "drop-shadow(0px 4px 8px rgba(0,0,0,0.22))",
         }}
       />
 
@@ -50,6 +55,7 @@ export default function Seat({
         width="80"
         height="10"
         fill="rgba(255,255,255,0.14)"
+        pointerEvents="none"
       />
 
       {/* label */}
@@ -61,8 +67,10 @@ export default function Seat({
         fontWeight="700"
         fontSize="14"
         style={{
-          userSelect: "none",
-          pointerEvents: "none",
+          userSelect:
+            "none",
+          pointerEvents:
+            "none",
         }}
       >
         {seat.id}

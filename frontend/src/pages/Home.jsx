@@ -27,8 +27,20 @@ export default function Home() {
   const [qrSeat, setQrSeat] =
     useState(null);
 
+  /* LIVE FETCH */
   useEffect(() => {
     fetchSeats();
+
+    const interval =
+      setInterval(
+        fetchSeats,
+        2000
+      );
+
+    return () =>
+      clearInterval(
+        interval
+      );
   }, []);
 
   const fetchSeats =
@@ -61,7 +73,9 @@ export default function Home() {
         setSeats(
           updatedSeats
         );
-      } catch (error) {
+      } catch (
+        error
+      ) {
         console.error(
           "FETCH ERROR:",
           error
@@ -72,46 +86,55 @@ export default function Home() {
   const activities = [
     {
       id: 1,
-      text: "D12 checked in",
-      color: "bg-green-500",
+      text:
+        "D12 checked in",
+      color:
+        "bg-green-500",
     },
     {
       id: 2,
-      text: "D8 marked Away",
-      color: "bg-yellow-400",
+      text:
+        "D8 marked Away",
+      color:
+        "bg-yellow-400",
     },
     {
       id: 3,
-      text: "D31 auto-freed",
-      color: "bg-red-500",
+      text:
+        "D31 auto-freed",
+      color:
+        "bg-red-500",
     },
     {
       id: 4,
       text:
         "Group Study B occupied",
-      color: "bg-cyan-500",
+      color:
+        "bg-cyan-500",
     },
   ];
 
-  const occupied = useMemo(
-    () =>
-      seats.filter(
-        (s) =>
-          s.status ===
-          "occupied"
-      ).length,
-    [seats]
-  );
+  const occupied =
+    useMemo(
+      () =>
+        seats.filter(
+          (s) =>
+            s.status ===
+            "occupied"
+        ).length,
+      [seats]
+    );
 
-  const away = useMemo(
-    () =>
-      seats.filter(
-        (s) =>
-          s.status ===
-          "away"
-      ).length,
-    [seats]
-  );
+  const away =
+    useMemo(
+      () =>
+        seats.filter(
+          (s) =>
+            s.status ===
+            "away"
+        ).length,
+      [seats]
+    );
 
   const free =
     seats.length -
@@ -147,7 +170,8 @@ export default function Home() {
           </h2>
 
           <p className="text-slate-500 text-sm mt-1">
-            Track desk occupancy,
+            Track desk
+            occupancy,
             away mode &
             study spaces
             in real time.
@@ -160,31 +184,42 @@ export default function Home() {
           <StatCard
             title="Seats"
             value="40"
-            icon={<Armchair />}
+            icon={
+              <Armchair />
+            }
           />
 
           <StatCard
             title="Occupied"
-            value={occupied}
-            icon={<Users />}
+            value={
+              occupied
+            }
+            icon={
+              <Users />
+            }
           />
 
           <StatCard
             title="Away"
             value={away}
-            icon={<Clock3 />}
+            icon={
+              <Clock3 />
+            }
           />
 
           <StatCard
             title="Available"
             value={free}
-            icon={<Armchair />}
+            icon={
+              <Armchair />
+            }
           />
         </div>
 
         {/* search */}
         <div className="mb-8">
           <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[28px] px-5 py-4 flex items-center gap-3">
+
             <Search className="text-slate-400" />
 
             <input
@@ -198,11 +233,13 @@ export default function Home() {
         {/* layout */}
         <div className="grid grid-cols-[1fr_240px] gap-5 items-start">
 
-          {/* map */}
+          {/* MAP */}
           <div className="min-w-0">
             <LibraryMap
               seats={seats}
-              openSeat={(seat) =>
+              openSeat={(
+                seat
+              ) =>
                 setQrSeat(
                   seat
                 )
@@ -257,6 +294,7 @@ export default function Home() {
               </h2>
 
               <div className="space-y-3 text-xs text-slate-300">
+
                 <Rule text="Maintain silence in study zones." />
 
                 <Rule text="Food & drinks are not allowed near desks." />
@@ -274,7 +312,9 @@ export default function Home() {
       <QRModal
         seat={qrSeat}
         close={() =>
-          setQrSeat(null)
+          setQrSeat(
+            null
+          )
         }
       />
     </div>
@@ -288,7 +328,9 @@ function StatCard({
 }) {
   return (
     <motion.div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[30px] p-6 text-white">
+
       <div className="flex justify-between items-center">
+
         <div>
           <p className="text-slate-400 text-sm">
             {title}
