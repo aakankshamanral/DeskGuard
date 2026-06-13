@@ -11,58 +11,77 @@ const app =
   express();
 
 app.use(
-  cors({
-    origin:
-      "http://localhost:5173",
-  })
+  cors()
 );
 
 app.use(
   express.json()
 );
 
-/* In-memory seat status */
-let seats = Array.from(
-  { length: 40 },
-  (_, i) => ({
-    seat_number: `D${i + 1}`,
-    status: "free",
-    checked_in_at: null,
-    away_until: null,
-    last_response_at:
-      null,
-    abandoned: false,
-  })
-);
+/* 40 seats */
+let seats =
+  Array.from(
+    { length: 40 },
+    (_, i) => ({
+      seat_number: `D${
+        i + 1
+      }`,
+      status: "free",
 
-/* GET ALL SEATS */
+      checked_in_at:
+        null,
+
+      away_until:
+        null,
+
+      still_here_due:
+        null,
+
+      abandoned:
+        false,
+    })
+  );
+
+/* GET ALL */
 app.get(
   "/api/seats",
-  (req, res) => {
-    res.json(seats);
+  (
+    req,
+    res
+  ) => {
+    res.json(
+      seats
+    );
   }
 );
 
 /* CHECK IN */
 app.post(
   "/api/checkin",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
     const {
       seat_number,
     } = req.body;
 
     const seat =
       seats.find(
-        (s) =>
+        (
+          s
+        ) =>
           s.seat_number ===
           seat_number
       );
 
     if (!seat) {
       return res
-        .status(404)
+        .status(
+          404
+        )
         .json({
-          message:
+          error:
             "Seat not found",
         });
     }
@@ -73,8 +92,18 @@ app.post(
     seat.checked_in_at =
       new Date();
 
-    seat.last_response_at =
-      new Date();
+    /* next still here prompt */
+    seat.still_here_due =
+      new Date(
+        Date.now() +
+          2 *
+            60 *
+            60 *
+            1000
+      );
+
+    seat.away_until =
+      null;
 
     seat.abandoned =
       false;
@@ -87,26 +116,33 @@ app.post(
   }
 );
 
-/* AWAY MODE */
+/* AWAY */
 app.post(
   "/api/away",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
     const {
       seat_number,
     } = req.body;
 
     const seat =
       seats.find(
-        (s) =>
+        (
+          s
+        ) =>
           s.seat_number ===
           seat_number
       );
 
     if (!seat) {
       return res
-        .status(404)
+        .status(
+          404
+        )
         .json({
-          message:
+          error:
             "Seat not found",
         });
     }
@@ -114,6 +150,7 @@ app.post(
     seat.status =
       "away";
 
+    /* 20 mins */
     seat.away_until =
       new Date(
         Date.now() +
@@ -124,7 +161,7 @@ app.post(
 
     res.json({
       message:
-        "Away mode activated",
+        "Away mode started",
       seat,
     });
   }
@@ -133,36 +170,50 @@ app.post(
 /* STILL HERE */
 app.post(
   "/api/still-here",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
     const {
       seat_number,
     } = req.body;
 
     const seat =
       seats.find(
-        (s) =>
+        (
+          s
+        ) =>
           s.seat_number ===
           seat_number
       );
 
     if (!seat) {
       return res
-        .status(404)
+        .status(
+          404
+        )
         .json({
-          message:
+          error:
             "Seat not found",
         });
     }
 
-    seat.last_response_at =
-      new Date();
-
     seat.status =
       "occupied";
 
+    /* reset 2hr timer */
+    seat.still_here_due =
+      new Date(
+        Date.now() +
+          2 *
+            60 *
+            60 *
+            1000
+      );
+
     res.json({
       message:
-        "Seat confirmed",
+        "Confirmed",
       seat,
     });
   }
@@ -171,23 +222,30 @@ app.post(
 /* RESET */
 app.post(
   "/api/reset",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
     const {
       seat_number,
     } = req.body;
 
     const seat =
       seats.find(
-        (s) =>
+        (
+          s
+        ) =>
           s.seat_number ===
           seat_number
       );
 
     if (!seat) {
       return res
-        .status(404)
+        .status(
+          404
+        )
         .json({
-          message:
+          error:
             "Seat not found",
         });
     }
@@ -201,7 +259,7 @@ app.post(
     seat.away_until =
       null;
 
-    seat.last_response_at =
+    seat.still_here_due =
       null;
 
     seat.abandoned =
@@ -215,58 +273,61 @@ app.post(
   }
 );
 
-/* CRON JOB */
+/* CRON SWEEPER */
 cron.schedule(
   "* * * * *",
   () => {
     console.log(
-      "Checking seat timers..."
+      "Running seat sweep..."
     );
+
+    const now =
+      new Date();
 
     seats.forEach(
       (seat) => {
-        const now =
-          new Date();
-
-        /* away timeout */
+        /* away timer expired */
         if (
           seat.away_until &&
           now >
-            seat.away_until
+            new Date(
+              seat.away_until
+            )
         ) {
           seat.status =
             "free";
 
           seat.away_until =
             null;
+
+          console.log(
+            `${seat.seat_number} freed from away timeout`
+          );
         }
 
-        /* 2 hour still here timeout */
+        /* still here missed */
         if (
-          seat.last_response_at
-        ) {
-          const diff =
-            now -
+          seat.still_here_due &&
+          now >
             new Date(
-              seat.last_response_at
-            );
+              seat.still_here_due
+            )
+        ) {
+          seat.status =
+            "free";
 
-          if (
-            diff >
-            2 *
-              60 *
-              60 *
-              1000
-          ) {
-            seat.status =
-              "free";
+          seat.abandoned =
+            true;
 
-            seat.abandoned =
-              true;
+          seat.checked_in_at =
+            null;
 
-            seat.checked_in_at =
-              null;
-          }
+          seat.still_here_due =
+            null;
+
+          console.log(
+            `${seat.seat_number} abandoned`
+          );
         }
       }
     );
@@ -275,7 +336,10 @@ cron.schedule(
 
 app.get(
   "/",
-  (req, res) => {
+  (
+    req,
+    res
+  ) => {
     res.send(
       "DeskGuard API Running"
     );

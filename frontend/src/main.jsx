@@ -10,7 +10,7 @@ import {
 import "./index.css";
 
 import Home from "./pages/Home";
-import SeatPage from "./pages/SeatPage";
+import ScanPage from "./pages/ScanPage";
 
 ReactDOM.createRoot(
   document.getElementById(
@@ -19,17 +19,19 @@ ReactDOM.createRoot(
 ).render(
   <BrowserRouter>
     <Routes>
+
       <Route
         path="/"
         element={<Home />}
       />
 
       <Route
-        path="/seat/:seatId"
+        path="/scan"
         element={
-          <SeatPage />
+          <ScanPage />
         }
       />
+
     </Routes>
   </BrowserRouter>
 );
